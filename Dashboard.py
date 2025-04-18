@@ -11,10 +11,10 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Symbol list ===
 symbols = [
-    'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT',
-    'DOGE/USDT', 'TRX/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT',
-    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'DOT/USDT',
-    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'NEAR/USDT'
+    'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
+    'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
+    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'PI/USDT',
+    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT'
 ]
 
 # === Settings ===
