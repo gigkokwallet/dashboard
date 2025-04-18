@@ -51,6 +51,13 @@ def get_data(symbol, tf, limit):
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     return df
 
+# === Add 24-Hour Price Change and Volume ===
+def get_24h_data(symbol):
+    ticker = exchange.fetch_ticker(symbol)
+    price_change_percent = ticker['percentage']  # % change in the last 24 hours
+    volume_24h = ticker['quoteVolume']  # Volume in 24 hours
+    return price_change_percent, volume_24h
+
 # === Technical Analysis ===
 def analyze(df):
     macd = ta.trend.MACD(df['close'])
@@ -123,28 +130,37 @@ def color_confirm(val):
         return 'background-color: #feb2b2'
     return ''
 
-# === Run Analysis ===
+# === Run Analysis with 24-Hour Data ===
 results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
     for symbol in symbols:
         try:
+            # Fetch main and confirmation data
             df_main = analyze(get_data(symbol, timeframes['main'], limit))
             df_confirm = analyze(get_data(symbol, timeframes['confirm'], limit))
 
+            # Signal detection and confirmation
             signal = detect_signal(df_main)
             confirmed_vol = confirm_volume(df_main, df_confirm)
             price = df_main['close'].iloc[-1]
             status = get_status(df_main)
 
-            if signal and confirmed_vol:
-                send_telegram_message(f"\ud83d\udd39 *{symbol}* | {signal}\n\ud83d\udcc8 ราคา: {price:,.2f}\n\ud83d\udd22 สถานะ: {status}")
+            # Get 24-hour change and volume
+            price_change_percent, volume_24h = get_24h_data(symbol)
 
+            # Send message to Telegram if conditions met
+            if signal and confirmed_vol:
+                send_telegram_message(f"\ud83d\udd39 *{symbol}* | {signal}\n\ud83d\udcc8 ราคา: {price:,.2f}\n\ud83d\udd22 สถานะ: {status}\n📉 % Change (24h): {price_change_percent}%\n📊 Volume (24h): {volume_24h}")
+
+            # Append data to results
             results.append({
                 '🪙 Symbol': symbol,
                 '📊 Status': status,
                 '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
                 '💰 Price': f"{price:,.4f}",
-                '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌'
+                '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
+                '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
+                '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
             })
 
         except Exception as e:
@@ -154,14 +170,17 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
+# Apply filters
 if signal_filter != "ทั้งหมด":
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains(signal_filter)]
 if volume_filter:
     df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
 
+# Style the dataframe
 styled_df = df_filtered.style.applymap(color_signal, subset=['📈 Signal'])\
                                .applymap(color_confirm, subset=['✅ Confirmed (Vol)'])
 
+# Display the dataframe with the added columns
 st.dataframe(styled_df, use_container_width=True, height=700)
 
 if df_filtered.empty:
