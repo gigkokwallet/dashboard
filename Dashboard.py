@@ -2,35 +2,49 @@ import ccxt
 import pandas as pd
 import ta
 import streamlit as st
+import requests
 import time
 
-# === UI Setup ===
+# === Streamlit UI Setup ===
 st.set_page_config(layout="wide", page_title="📊 Crypto Signal Dashboard")
 st.title("📈 Real-Time Crypto Signal Dashboard")
 st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
-# === Symbol list ===
+# === Telegram Config ===
+TELEGRAM_TOKEN = '8056034086:AAFB1uDF0lJ6jQDmcVnPVtnMd8vAgsftrbc'
+TELEGRAM_CHAT_ID = '5755908955'
+
+def send_telegram_alert(symbol, signal, price, volume_note, status):
+    message = f"""🚨 Confirmed Signal Alert
+🪙 Symbol: {symbol}
+📈 Signal: {signal}
+💰 Price: {price:,.4f}
+📉 Volume: {volume_note}
+📊 Status: {status}
+"""
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+    requests.post(url, data=data)
+
+# === Symbol List ===
 symbols = [
     'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
     'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
-    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'PI/USDT',
-    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
-    'TRUMP/USDT', 'ENA/USDT'
+    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'UNI/USDT',
+    'POPCAT/USDT', 'NEAR/USDT', 'TON/USDT', 'ARB/USDT'
 ]
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
 limit = 100
+exchange = ccxt.mexc()
 
-# Use MEXC instead of Binance
-exchange = ccxt.mexc()  # Connect to MEXC API
-
-# === Clear cache button ===
+# === Clear Cache Button ===
 if st.button("🧹 Clear Cache"):
     st.cache_data.clear()
     st.experimental_rerun()
 
-# === Cached OHLCV Fetching ===
+# === Fetch OHLCV (with Cache) ===
 @st.cache_data(ttl=60)
 def get_data(symbol, tf, limit):
     ohlcv = exchange.fetch_ohlcv(symbol, tf, limit=limit)
@@ -38,7 +52,7 @@ def get_data(symbol, tf, limit):
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     return df
 
-# === Technical Analysis ===
+# === Indicator Calculation ===
 def analyze(df):
     macd = ta.trend.MACD(df['close'])
     df['macd'] = macd.macd()
@@ -51,7 +65,7 @@ def analyze(df):
     df['volume_ma'] = df['volume'].rolling(window=20).mean()
     return df
 
-# === Signal Detection ===
+# === Signal Detection (Only on 5m) ===
 def detect_signal(df):
     try:
         macd_cross_up = df['macd'].iloc[-2] < df['macd_signal'].iloc[-2] and df['macd'].iloc[-1] > df['macd_signal'].iloc[-1]
@@ -80,10 +94,11 @@ def volume_strength(df):
     else:
         return "ปกติ 🔄"
 
-# === Confirm Signal ===
-def confirm_signal(df_main, df_confirm, main_signal):
-    confirm = detect_signal(df_confirm)
-    return confirm == main_signal
+# === Confirm Signal by Volume ===
+def confirm_signal_by_volume(df_main, df_confirm):
+    vol_main = volume_strength(df_main)
+    vol_confirm = volume_strength(df_confirm)
+    return vol_main == "จริง ✅" and vol_confirm == "จริง ✅"
 
 # === Signal Status Explanation ===
 def get_status(df):
@@ -101,7 +116,7 @@ def get_status(df):
     else:
         return "ยังไม่ชัดเจน 🔄"
 
-# === Data Processing ===
+# === Main Loop ===
 results = []
 
 with st.spinner("🔄 Fetching data & analyzing..."):
@@ -115,7 +130,10 @@ with st.spinner("🔄 Fetching data & analyzing..."):
             price = df_main['close'].iloc[-1]
             status = get_status(df_main)
 
-            is_confirmed = confirm_signal(df_main, df_confirm, signal) if signal else None
+            is_confirmed = confirm_signal_by_volume(df_main, df_confirm) if signal else None
+
+            if is_confirmed:
+                send_telegram_alert(symbol, signal, price, vol_strength, status)
 
             results.append({
                 '🪙 Symbol': symbol,
@@ -123,12 +141,12 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
                 '💰 Price': f"{price:,.4f}",
                 '📉 Volume': vol_strength,
-                '✅ Confirm (15m)': '✅' if is_confirmed else ('❌' if is_confirmed == False else '—')
+                '✅ Confirmed (Vol)': '✅' if is_confirmed else ('❌' if is_confirmed == False else '—')
             })
         except Exception as e:
             st.error(f"{symbol} - {str(e)}")
 
-# === Show Result ===
+# === Display Results ===
 if results:
     df_result = pd.DataFrame(results)
     st.dataframe(df_result, use_container_width=True)
