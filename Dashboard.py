@@ -174,13 +174,13 @@ df_filtered = df_result.copy()
 
 # Apply Long and Short Filters
 if not long_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
+    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('LONG')]  # กรองออกถ้าไม่มี 'LONG'
 if not short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
+    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('SHORT')]  # กรองออกถ้าไม่มี 'SHORT'
 
 # Apply Volume Filter
 if volume_filter:
-    df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
+    df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']  # กรองเฉพาะที่มี volume confirmation
 
 # Apply the styling and display
 st.dataframe(
