@@ -20,13 +20,6 @@ st.title("📈 Real-Time Crypto Signal Dashboard")
 st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Sidebar Filters ===
-st.sidebar.markdown("## 🔍 Filter Options")
-
-# Filter for LONG and SHORT
-# ใช้ checkbox เดียวเพื่อเลือกแสดงทั้ง LONG และ SHORT
-show_signals = st.sidebar.checkbox('Show BOTH LONG and SHORT signals', value=False)
-
-# ตรวจสอบว่า checkbox ถูกเลือกหรือไม่
 if show_signals:
     st.write("Showing BOTH LONG and SHORT signals")
 
