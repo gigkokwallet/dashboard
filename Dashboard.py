@@ -23,7 +23,8 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 st.sidebar.markdown("## 🔍 Filter Options")
 
 # Filter for LONG and SHORT
-signal_filter = st.sidebar.multiselect('Select Signal Type', ['LONG', 'SHORT'], default=['LONG', 'SHORT'])
+long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
+short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
 
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
@@ -174,11 +175,11 @@ df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
 # Apply filters
-if 'LONG' in signal_filter and 'SHORT' in signal_filter:
+if long_filter and short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
-elif 'LONG' in signal_filter:
+elif long_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
-elif 'SHORT' in signal_filter:
+elif short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
 
 if volume_filter:
