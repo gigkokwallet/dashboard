@@ -21,11 +21,10 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Sidebar Filters ===
 st.sidebar.markdown("## 🔍 Filter Options")
-signal_filter = st.sidebar.multiselect(
-    "เลือกประเภทสัญญาณ", 
-    options=["LONG", "SHORT"], 
-    default=["LONG", "SHORT"]
-)
+
+# Filter for LONG and SHORT
+long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
+short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
 
 volume_filter = st.sidebar.checkbox("แสดงเฉพาะที่ Confirmed Volume ✅", value=False)
 
@@ -176,8 +175,13 @@ df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
 # Apply filters
-if signal_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('|'.join(signal_filter))]
+if long_filter and short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
+elif long_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
+elif short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
+
 if volume_filter:
     df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
 
