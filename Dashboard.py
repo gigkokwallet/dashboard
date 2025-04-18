@@ -174,4 +174,12 @@ df_filtered = df_result.copy()
 
 if not long_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
-if not short_filter_
+if not short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
+
+st.dataframe(
+    df_filtered.style
+        .applymap(color_signal, subset=["📈 Signal"])
+        .applymap(color_confirm, subset=["✅ Confirmed (Vol)"]),
+    use_container_width=True
+)
