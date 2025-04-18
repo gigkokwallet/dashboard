@@ -37,6 +37,12 @@ timeframes = {'main': '5m', 'confirm': '15m'}
 limit = 100
 exchange = ccxt.mexc()
 
+# === ตั้งชื่อ Symbols ที่ต้องการวิเคราะห์ ===
+symbols = [
+    'BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'SOL/USDT', 'XRP/USDT',
+    'NEAR/USDT', 'OP/USDT', 'INJ/USDT', 'DOGE/USDT', 'AVAX/USDT'
+]
+
 # === Clear cache button ===
 if st.button("🧹 Clear Cache"):
     try:
@@ -55,8 +61,8 @@ def get_data(symbol, tf, limit):
 # === Add 24-Hour Price Change and Volume ===
 def get_24h_data(symbol):
     ticker = exchange.fetch_ticker(symbol)
-    price_change_percent = ticker['percentage']  # % change in the last 24 hours
-    volume_24h = ticker['quoteVolume']  # Volume in 24 hours
+    price_change_percent = ticker['percentage']
+    volume_24h = ticker['quoteVolume']
     return price_change_percent, volume_24h
 
 # === Technical Analysis ===
@@ -124,7 +130,6 @@ def color_signal(val):
         return 'background-color: #fed7d7'
     return ''
 
-
 def color_confirm(val):
     if val == '✅':
         return 'background-color: #9ae6b4'
@@ -137,32 +142,27 @@ results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
     for symbol in symbols:
         try:
-            # Fetch main and confirmation data
             df_main = analyze(get_data(symbol, timeframes['main'], limit))
             df_confirm = analyze(get_data(symbol, timeframes['confirm'], limit))
 
-            # Signal detection and confirmation
             signal = detect_signal(df_main)
             confirmed_vol = confirm_volume(df_main, df_confirm)
             price = df_main['close'].iloc[-1]
             status = get_status(df_main)
 
-            # Get 24-hour change and volume
             price_change_percent, volume_24h = get_24h_data(symbol)
 
-            # Send message to Telegram if conditions met
             if signal and confirmed_vol:
                 send_telegram_message(f"\U0001F539 *{symbol}* | {signal}\n\U0001F4C8 ราคา: {price:,.2f}\n\U0001F622 สถานะ: {status}\n📉 % Change (24h): {price_change_percent}%\n📊 Volume (24h): {volume_24h}")
 
-            # Append data to results
             results.append({
                 '🪙 Symbol': symbol,
                 '📊 Status': status,
                 '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
                 '💰 Price': f"{price:,.4f}",
                 '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
-                '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
-                '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
+                '📉 24h Change (%)': f"{price_change_percent:.2f}%",
+                '📊 Volume (24h)': f"{volume_24h:,.2f}"
             })
 
         except Exception as e:
@@ -172,11 +172,6 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
-# Apply filters
 if not long_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
-if not short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
-
-# Show filtered results
-st.dataframe(df_filtered.style.applymap(color_signal, subset=["📈 Signal"]).applymap(color_confirm, subset=["✅ Confirmed (Vol)"]), use_container_width=True)
+if not short_filter_
