@@ -37,7 +37,8 @@ symbols = [
     'TRUMP/USDT', 'ENA/USDT'
 ]
 
-selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Users can select multiple coins
+# เริ่มต้นเลือกทั้งหมดใน Multiselect
+selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Select all by default
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
@@ -170,14 +171,10 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
                 '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
                 '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
-            })  # <-- ปิดเครื่องหมายปีกกาให้สมบูรณ์ตรงนี้
-
+            })
         except Exception as e:
-            st.error(f"Error processing {symbol}: {str(e)}")
+            st.error(f"Error processing symbol {symbol}: {str(e)}")
 
 # === Display Results ===
-if results:
-    df_results = pd.DataFrame(results)
-    st.dataframe(df_results.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']))
-else:
-    st.warning("No signals detected.")
+st.write("### Crypto Signals")
+st.dataframe(pd.DataFrame(results).style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']))
