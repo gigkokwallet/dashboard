@@ -37,8 +37,7 @@ symbols = [
     'TRUMP/USDT', 'ENA/USDT'
 ]
 
-# เริ่มต้นเลือกทั้งหมดใน Multiselect
-selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Select all by default
+selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Users can select multiple coins
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
@@ -172,9 +171,21 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
                 '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
             })
-        except Exception as e:
-            st.error(f"Error processing symbol {symbol}: {str(e)}")
 
-# === Display Results ===
-st.write("### Crypto Signals")
-st.dataframe(pd.DataFrame(results).style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']))
+        except Exception as e:
+            st.error(f"{symbol} - {str(e)}")
+
+# === Filter Results ===
+df_result = pd.DataFrame(results)
+df_filtered = df_result.copy()
+
+# Apply filters
+if long_filter and short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
+elif long_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
+elif short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
+
+# Show table
+st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
