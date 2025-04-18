@@ -172,26 +172,15 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
-# Debug: ตรวจสอบข้อมูลเบื้องต้น
-st.write("Raw Results:")
-st.write(df_result)
-
 # Apply Long and Short Filters
 if not long_filter:
-    st.write("🔴 กรองออก 'LONG' signals")
-    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('LONG', na=False)]  # กรองออกถ้าไม่มี 'LONG'
+    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('LONG')]  # กรองออกถ้าไม่มี 'LONG'
 if not short_filter:
-    st.write("🔴 กรองออก 'SHORT' signals")
-    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('SHORT', na=False)]  # กรองออกถ้าไม่มี 'SHORT'
+    df_filtered = df_filtered[~df_filtered['📈 Signal'].str.contains('SHORT')]  # กรองออกถ้าไม่มี 'SHORT'
 
 # Apply Volume Filter
 if volume_filter:
-    st.write("🔴 กรองเฉพาะที่มี Volume Confirmation (✅)")
     df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']  # กรองเฉพาะที่มี volume confirmation
-
-# Debug: ตรวจสอบข้อมูลหลังกรอง
-st.write("Filtered Results:")
-st.write(df_filtered)
 
 # Apply the styling and display
 st.dataframe(
