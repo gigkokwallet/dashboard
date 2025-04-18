@@ -28,7 +28,7 @@ short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
 
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
-# === Symbol list (filtered list based on user selection) ===
+# === Symbol list ===
 symbols = [
     'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
     'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
@@ -36,8 +36,6 @@ symbols = [
     'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
     'TRUMP/USDT', 'ENA/USDT'
 ]
-
-selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Users can select multiple coins
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
@@ -142,7 +140,7 @@ def color_confirm(val):
 # === Run Analysis with 24-Hour Data ===
 results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
-    for symbol in selected_symbols:  # Only loop through the selected symbols
+    for symbol in symbols:
         try:
             # Fetch main and confirmation data
             df_main = analyze(get_data(symbol, timeframes['main'], limit))
@@ -188,4 +186,4 @@ elif short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
 
 # Show table
-st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
+st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200
