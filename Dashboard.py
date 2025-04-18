@@ -20,18 +20,15 @@ st.title("📈 Real-Time Crypto Signal Dashboard")
 st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Sidebar Filters ===
-show_signals = st.sidebar.checkbox('Show BOTH LONG and SHORT signals', value=True)
-long_filter = st.sidebar.checkbox('Show LONG signals', value=True)
-short_filter = st.sidebar.checkbox('Show SHORT signals', value=True)
+st.sidebar.markdown("## 🔍 Filter Options")
 
-if show_signals:
-    st.write("Showing BOTH LONG and SHORT signals")
-else:
-    st.write("No signals selected")
+# Filter for LONG and SHORT
+long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
+short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
 
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
-# === Symbol list ===
+# === Symbol list (filtered list based on user selection) ===
 symbols = [
     'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
     'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
@@ -39,6 +36,9 @@ symbols = [
     'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
     'TRUMP/USDT', 'ENA/USDT'
 ]
+
+# เริ่มต้นเลือกทั้งหมดใน Multiselect
+selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Select all by default
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
@@ -143,7 +143,7 @@ def color_confirm(val):
 # === Run Analysis with 24-Hour Data ===
 results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
-    for symbol in symbols:
+    for symbol in selected_symbols:  # Only loop through the selected symbols
         try:
             # Fetch main and confirmation data
             df_main = analyze(get_data(symbol, timeframes['main'], limit))
@@ -172,19 +172,9 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
                 '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
             })
-
         except Exception as e:
-            st.error(f"{symbol} - {str(e)}")
+            st.error(f"Error processing symbol {symbol}: {str(e)}")
 
-# === Filter Results ===
-df_result = pd.DataFrame(results)
-df_filtered = df_result.copy()
-
-# Apply filters
-if not long_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
-if not short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
-
-# Show filtered results
-st.dataframe(df_filtered.style.applymap(color_signal, subset=["📈 Signal"]).applymap(color_confirm, subset=["✅ Confirmed (Vol)"]), use_container_width=True)
+# === Display Results ===
+st.write("### Crypto Signals")
+st.dataframe(pd.DataFrame(results).style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']))
