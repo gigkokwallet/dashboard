@@ -23,10 +23,9 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 st.sidebar.markdown("## 🔍 Filter Options")
 
 # Filter for LONG and SHORT
-long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
-short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
+signal_filter = st.sidebar.multiselect('Select Signal Type', ['LONG', 'SHORT'], default=['LONG', 'SHORT'])
 
-volume_filter = st.sidebar.checkbox("แสดงเฉพาะที่ Confirmed Volume ✅", value=False)
+volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
 # === Symbol list ===
 symbols = [
@@ -175,11 +174,11 @@ df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
 # Apply filters
-if long_filter and short_filter:
+if 'LONG' in signal_filter and 'SHORT' in signal_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
-elif long_filter:
+elif 'LONG' in signal_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
-elif short_filter:
+elif 'SHORT' in signal_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
 
 if volume_filter:
