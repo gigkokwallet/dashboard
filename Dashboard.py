@@ -46,7 +46,6 @@ exchange = ccxt.mexc()
 if st.button("🧹 Clear Cache"):
     try:
         st.cache_data.clear()  # Clear cache
-        # Removed st.experimental_rerun(), as it's no longer valid.
     except Exception as e:
         st.error(f"Error clearing cache: {str(e)}")
 
@@ -188,7 +187,3 @@ elif short_filter:
 
 # Show table
 st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
-
-# === Re-run the app periodically ===
-time.sleep(10)
-st.experimental_rerun()
