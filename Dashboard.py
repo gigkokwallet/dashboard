@@ -127,6 +127,7 @@ def color_signal(val):
         return 'background-color: #fed7d7'
     return ''
 
+
 def color_confirm(val):
     if val == '✅':
         return 'background-color: #9ae6b4'
@@ -194,3 +195,7 @@ st.dataframe(styled_df, use_container_width=True, height=700)
 
 if df_filtered.empty:
     st.warning("🚫 No data to show.")
+
+# === Refresh Every Minute ===
+time.sleep(60)
+st.experimental_rerun()
