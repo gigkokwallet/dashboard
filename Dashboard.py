@@ -172,11 +172,17 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
+# Apply Long and Short Filters
 if not long_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
 if not short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
 
+# Apply Volume Filter
+if volume_filter:
+    df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
+
+# Apply the styling and display
 st.dataframe(
     df_filtered.style
         .applymap(color_signal, subset=["📈 Signal"])
