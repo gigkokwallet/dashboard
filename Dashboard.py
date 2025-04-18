@@ -23,10 +23,10 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 st.sidebar.markdown("## 🔍 Filter Options")
 
 # Filter for LONG and SHORT
-signal_filter = st.sidebar.multiselect(
-    "Select Signals", 
-    options=["LONG", "SHORT"], 
-    default=["LONG", "SHORT"]
+signal_filter = st.sidebar.radio(
+    "Select Signal",
+    options=["All", "LONG", "SHORT"],
+    index=0  # Default to "All"
 )
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
