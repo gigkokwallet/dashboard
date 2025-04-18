@@ -44,8 +44,11 @@ exchange = ccxt.mexc()
 
 # === Clear cache button ===
 if st.button("🧹 Clear Cache"):
-    st.cache_data.clear()
-    st.experimental_rerun()
+    try:
+        st.cache_data.clear()  # Clear cache
+        st.experimental_rerun()  # Refresh the app
+    except Exception as e:
+        st.error(f"Error clearing cache: {str(e)}")
 
 # === Cached OHLCV Fetching ===
 @st.cache_data(ttl=60)
