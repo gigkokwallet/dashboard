@@ -46,7 +46,7 @@ exchange = ccxt.mexc()
 if st.button("🧹 Clear Cache"):
     try:
         st.cache_data.clear()  # Clear cache
-        st.experimental_rerun()  # Refresh the app
+        # Removed st.experimental_rerun(), as it's no longer valid.
     except Exception as e:
         st.error(f"Error clearing cache: {str(e)}")
 
@@ -186,19 +186,9 @@ elif long_filter:
 elif short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
 
-if volume_filter:
-    df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
+# Show table
+st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
 
-# Style the dataframe
-styled_df = df_filtered.style.applymap(color_signal, subset=['📈 Signal'])\
-                               .applymap(color_confirm, subset=['✅ Confirmed (Vol)'])
-
-# Display the dataframe with the added columns
-st.dataframe(styled_df, use_container_width=True, height=700)
-
-if df_filtered.empty:
-    st.warning("🚫 No data to show.")
-
-# === Refresh Every Minute ===
-time.sleep(60)
+# === Re-run the app periodically ===
+time.sleep(10)
 st.experimental_rerun()
