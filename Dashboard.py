@@ -22,20 +22,29 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 # === Sidebar Filters ===
 st.sidebar.markdown("## 🔍 Filter Options")
 
-# Filter for LONG and SHORT
-long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
-short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
+# แสดง checkbox เดียวสำหรับกรองสัญญาณทั้ง LONG และ SHORT
+show_signals = st.sidebar.checkbox('Show BOTH LONG and SHORT signals', value=False)
 
-volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
+if show_signals:
+    st.write("Showing BOTH LONG and SHORT signals")
+    
+    # แสดงผล LONG signals
+    st.write("Displaying LONG signals")
+    # ตัวอย่างการแสดงข้อมูล LONG
+    # long_signal_data เป็นข้อมูลสัญญาณ LONG ที่คุณได้จากการวิเคราะห์
+    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
+    # ตัวอย่าง:
+    # st.write(long_signal_data)
 
-# === Symbol list (filtered list based on user selection) ===
-symbols = [
-    'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
-    'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
-    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'PI/USDT',
-    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
-    'TRUMP/USDT', 'ENA/USDT'
-]
+    # แสดงผล SHORT signals
+    st.write("Displaying SHORT signals")
+    # ตัวอย่างการแสดงข้อมูล SHORT
+    # short_signal_data เป็นข้อมูลสัญญาณ SHORT ที่คุณได้จากการวิเคราะห์
+    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
+    # ตัวอย่าง:
+    # st.write(short_signal_data)
+else:
+    st.write("No signals selected")
 
 # เริ่มต้นเลือกทั้งหมดใน Multiselect
 selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Select all by default
