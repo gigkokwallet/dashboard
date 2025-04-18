@@ -20,24 +20,12 @@ st.title("📈 Real-Time Crypto Signal Dashboard")
 st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Sidebar Filters ===
+show_signals = st.sidebar.checkbox('Show BOTH LONG and SHORT signals', value=True)
+long_filter = st.sidebar.checkbox('Show LONG signals', value=True)
+short_filter = st.sidebar.checkbox('Show SHORT signals', value=True)
+
 if show_signals:
     st.write("Showing BOTH LONG and SHORT signals")
-
-    # แสดงผล LONG signals
-    st.write("Displaying LONG signals")
-    # ตัวอย่างการแสดงข้อมูล LONG
-    # long_signal_data เป็นข้อมูลสัญญาณ LONG ที่คุณได้จากการวิเคราะห์
-    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
-    # ตัวอย่าง:
-    # st.write(long_signal_data)
-
-    # แสดงผล SHORT signals
-    st.write("Displaying SHORT signals")
-    # ตัวอย่างการแสดงข้อมูล SHORT
-    # short_signal_data เป็นข้อมูลสัญญาณ SHORT ที่คุณได้จากการวิเคราะห์
-    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
-    # ตัวอย่าง:
-    # st.write(short_signal_data)
 else:
     st.write("No signals selected")
 
@@ -193,12 +181,10 @@ df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
 # Apply filters
-if long_filter and short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
-elif long_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
-elif short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
+if not long_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT') == False]
+if not short_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG') == False]
 
-# Show table
-st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
+# Show filtered results
+st.dataframe(df_filtered.style.applymap(color_signal, subset=["📈 Signal"]).applymap(color_confirm, subset=["✅ Confirmed (Vol)"]), use_container_width=True)
