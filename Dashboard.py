@@ -28,7 +28,7 @@ short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
 
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
-# === Symbol list ===
+# === Symbol list (filtered list based on user selection) ===
 symbols = [
     'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
     'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
@@ -36,6 +36,8 @@ symbols = [
     'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
     'TRUMP/USDT', 'ENA/USDT'
 ]
+
+selected_symbols = st.sidebar.multiselect("Select Coins", symbols, default=symbols)  # Users can select multiple coins
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
@@ -140,7 +142,7 @@ def color_confirm(val):
 # === Run Analysis with 24-Hour Data ===
 results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
-    for symbol in symbols:
+    for symbol in selected_symbols:  # Only loop through the selected symbols
         try:
             # Fetch main and confirmation data
             df_main = analyze(get_data(symbol, timeframes['main'], limit))
@@ -167,23 +169,4 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '💰 Price': f"{price:,.4f}",
                 '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
                 '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
-                '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
-            })
-
-        except Exception as e:
-            st.error(f"{symbol} - {str(e)}")
-
-# === Filter Results ===
-df_result = pd.DataFrame(results)
-df_filtered = df_result.copy()
-
-# Apply filters
-if long_filter and short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG|SHORT')]
-elif long_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('LONG')]
-elif short_filter:
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
-
-# Show table
-st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
+                '📊 Volume (24h)': f"{volume_24_
