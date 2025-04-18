@@ -23,6 +23,7 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 st.sidebar.markdown("## 🔍 Filter Options")
 signal_filter = st.sidebar.selectbox("เลือกประเภทสัญญาณ", ["ทั้งหมด", "LONG", "SHORT"])
 volume_filter = st.sidebar.checkbox("แสดงเฉพาะที่ Confirmed Volume ✅", value=False)
+price_change_filter = st.sidebar.slider("กรองตาม % การเปลี่ยนแปลงราคา (24h)", -100.0, 100.0, (0.0, 100.0))
 
 # === Symbol list ===
 symbols = [
@@ -150,7 +151,7 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 
             # Send message to Telegram if conditions met
             if signal and confirmed_vol:
-                send_telegram_message(f"\ud83d\udd39 *{symbol}* | {signal}\n\ud83d\udcc8 ราคา: {price:,.2f}\n\ud83d\udd22 สถานะ: {status}\n📉 % Change (24h): {price_change_percent}%\n📊 Volume (24h): {volume_24h}")
+                send_telegram_message(f"\ud83d\udd39 *{symbol}* | {signal}\n\ud83d\udcc8 ราคา: {price:,.2f}\n\ud83d\ud22 สถานะ: {status}\n📉 % Change (24h): {price_change_percent}%\n📊 Volume (24h): {volume_24h}")
 
             # Append data to results
             results.append({
@@ -175,6 +176,11 @@ if signal_filter != "ทั้งหมด":
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains(signal_filter)]
 if volume_filter:
     df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
+
+# Apply price change filter
+min_change, max_change = price_change_filter
+df_filtered = df_filtered[(df_filtered['📉 24h Change (%)'] >= min_change) & 
+                          (df_filtered['📉 24h Change (%)'] <= max_change)]
 
 # Style the dataframe
 styled_df = df_filtered.style.applymap(color_signal, subset=['📈 Signal'])\
