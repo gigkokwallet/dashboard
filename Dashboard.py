@@ -21,7 +21,12 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
 # === Sidebar Filters ===
 st.sidebar.markdown("## 🔍 Filter Options")
-signal_filter = st.sidebar.selectbox("เลือกประเภทสัญญาณ", ["ทั้งหมด", "LONG", "SHORT"])
+signal_filter = st.sidebar.multiselect(
+    "เลือกประเภทสัญญาณ", 
+    options=["LONG", "SHORT"], 
+    default=["LONG", "SHORT"]
+)
+
 volume_filter = st.sidebar.checkbox("แสดงเฉพาะที่ Confirmed Volume ✅", value=False)
 
 # === Symbol list ===
@@ -171,8 +176,8 @@ df_result = pd.DataFrame(results)
 df_filtered = df_result.copy()
 
 # Apply filters
-if signal_filter != "ทั้งหมด":
-    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains(signal_filter)]
+if signal_filter:
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('|'.join(signal_filter))]
 if volume_filter:
     df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
 
