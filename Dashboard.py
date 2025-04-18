@@ -25,7 +25,7 @@ st.sidebar.markdown("## 🔍 Filter Options")
 # Filter for LONG and SHORT
 signal_filter = st.sidebar.radio(
     "Select Signal",
-    options=["All", "LONG", "SHORT"],
+    options=["All"],  # Only "All" as the available choice
     index=0  # Default to "All"
 )
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
