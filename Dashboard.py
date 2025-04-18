@@ -20,7 +20,9 @@ symbols = [
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
 limit = 100
-exchange = ccxt.binance()
+
+# Use MEXC instead of Binance
+exchange = ccxt.mexc()  # Connect to MEXC API
 
 # === Clear cache button ===
 if st.button("🧹 Clear Cache"):
@@ -118,7 +120,7 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '🪙 Symbol': symbol,
                 '📊 Status': status,
                 '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
-                '💰 Price': f"{price:,.2f}",
+                '💰 Price': f"{price:,.4f}",
                 '📉 Volume': vol_strength,
                 '✅ Confirm (15m)': '✅' if is_confirmed else ('❌' if is_confirmed == False else '—')
             })
