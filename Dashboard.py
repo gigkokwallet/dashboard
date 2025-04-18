@@ -19,19 +19,18 @@ st.set_page_config(layout="wide", page_title="📊 Crypto Signal Dashboard")
 st.title("📈 Real-Time Crypto Signal Dashboard")
 st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 
-# === Sidebar Filters ===
-long_filter = st.sidebar.checkbox('Filter LONG signals', value=False)
-short_filter = st.sidebar.checkbox('Filter SHORT signals', value=False)
-volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
+st.sidebar.subheader("🔍 Signal Filters")
 
-# === Symbol list ===
-symbols = [
-    'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
-    'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
-    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'PI/USDT',
-    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
-    'TRUMP/USDT', 'ENA/USDT'
-]
+select_all_filters = st.sidebar.checkbox("✅ แสดงทุกสัญญาณ (LONG + SHORT)", value=True)
+
+if select_all_filters:
+    long_filter = True
+    short_filter = True
+else:
+    long_filter = st.sidebar.checkbox('Filter LONG signals', value=True)
+    short_filter = st.sidebar.checkbox('Filter SHORT signals', value=True)
+
+volume_filter = st.sidebar.checkbox("✅ Confirmed Volume", value=False)
 
 # === Settings ===
 timeframes = {'main': '5m', 'confirm': '15m'}
