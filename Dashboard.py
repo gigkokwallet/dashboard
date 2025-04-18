@@ -23,11 +23,31 @@ st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
 st.sidebar.markdown("## 🔍 Filter Options")
 
 # Filter for LONG and SHORT
-signal_filter = st.sidebar.radio(
-    "Select Signal",
-    options=["All"],  # Only "All" as the available choice
-    index=0  # Default to "All"
-)
+# ใช้ checkbox เดียวเพื่อเลือกแสดงทั้ง LONG และ SHORT
+show_signals = st.sidebar.checkbox('Show BOTH LONG and SHORT signals', value=False)
+
+# ตรวจสอบว่า checkbox ถูกเลือกหรือไม่
+if show_signals:
+    st.write("Showing BOTH LONG and SHORT signals")
+
+    # แสดงผล LONG signals
+    st.write("Displaying LONG signals")
+    # ตัวอย่างการแสดงข้อมูล LONG
+    # long_signal_data เป็นข้อมูลสัญญาณ LONG ที่คุณได้จากการวิเคราะห์
+    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
+    # ตัวอย่าง:
+    # st.write(long_signal_data)
+
+    # แสดงผล SHORT signals
+    st.write("Displaying SHORT signals")
+    # ตัวอย่างการแสดงข้อมูล SHORT
+    # short_signal_data เป็นข้อมูลสัญญาณ SHORT ที่คุณได้จากการวิเคราะห์
+    # คุณสามารถแสดงข้อมูลจริงจากการคำนวณในที่นี้
+    # ตัวอย่าง:
+    # st.write(short_signal_data)
+else:
+    st.write("No signals selected")
+
 volume_filter = st.sidebar.checkbox("Confirmed Volume", value=False)
 
 # === Symbol list ===
