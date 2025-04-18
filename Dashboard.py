@@ -186,4 +186,4 @@ elif short_filter:
     df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains('SHORT')]
 
 # Show table
-st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200
+st.dataframe(df_filtered.style.applymap(color_signal, subset=['📈 Signal']).applymap(color_confirm, subset=['✅ Confirmed (Vol)']), width=1200)
