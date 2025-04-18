@@ -2,36 +2,35 @@ import ccxt
 import pandas as pd
 import ta
 import streamlit as st
-import requests
 import time
-
-# === Streamlit UI Setup ===
-st.set_page_config(layout="wide", page_title="📊 Crypto Signal Dashboard")
-st.title("📈 Real-Time Crypto Signal Dashboard")
-st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
+import requests
 
 # === Telegram Config ===
 TELEGRAM_TOKEN = '8056034086:AAFB1uDF0lJ6jQDmcVnPVtnMd8vAgsftrbc'
 TELEGRAM_CHAT_ID = '5755908955'
 
-def send_telegram_alert(symbol, signal, price, volume_note, status):
-    message = f"""🚨 Confirmed Signal Alert
-🪙 Symbol: {symbol}
-📈 Signal: {signal}
-💰 Price: {price:,.4f}
-📉 Volume: {volume_note}
-📊 Status: {status}
-"""
+def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
+    data = {"chat_id": TELEGRAM_CHAT_ID, "text": message, "parse_mode": "Markdown"}
     requests.post(url, data=data)
 
-# === Symbol List ===
+# === UI Setup ===
+st.set_page_config(layout="wide", page_title="📊 Crypto Signal Dashboard")
+st.title("📈 Real-Time Crypto Signal Dashboard")
+st.caption("Powered by ccxt + ta + Streamlit | By Naseeb")
+
+# === Sidebar Filters ===
+st.sidebar.markdown("## 🔍 Filter Options")
+signal_filter = st.sidebar.selectbox("เลือกประเภทสัญญาณ", ["ทั้งหมด", "LONG", "SHORT"])
+volume_filter = st.sidebar.checkbox("แสดงเฉพาะที่ Confirmed Volume ✅", value=False)
+
+# === Symbol list ===
 symbols = [
     'BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 'INJ/USDT',
     'DOGE/USDT', 'WIF/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 'TIA/USDT',
-    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'UNI/USDT',
-    'POPCAT/USDT', 'NEAR/USDT', 'TON/USDT', 'ARB/USDT'
+    'XLM/USDT', 'SUI/USDT', 'BCH/USDT', 'LTC/USDT', 'DOT/USDT', 'PI/USDT',
+    'POPCAT/USDT', 'UNI/USDT', 'ONDO/USDT', 'TON/USDT', 'ARB/USDT', 'NEAR/USDT', 
+    'TRUMP/USDT', 'ENA/USDT'
 ]
 
 # === Settings ===
@@ -39,12 +38,12 @@ timeframes = {'main': '5m', 'confirm': '15m'}
 limit = 100
 exchange = ccxt.mexc()
 
-# === Clear Cache Button ===
+# === Clear cache button ===
 if st.button("🧹 Clear Cache"):
     st.cache_data.clear()
     st.experimental_rerun()
 
-# === Fetch OHLCV (with Cache) ===
+# === Cached OHLCV Fetching ===
 @st.cache_data(ttl=60)
 def get_data(symbol, tf, limit):
     ohlcv = exchange.fetch_ohlcv(symbol, tf, limit=limit)
@@ -52,7 +51,7 @@ def get_data(symbol, tf, limit):
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
     return df
 
-# === Indicator Calculation ===
+# === Technical Analysis ===
 def analyze(df):
     macd = ta.trend.MACD(df['close'])
     df['macd'] = macd.macd()
@@ -65,7 +64,7 @@ def analyze(df):
     df['volume_ma'] = df['volume'].rolling(window=20).mean()
     return df
 
-# === Signal Detection (Only on 5m) ===
+# === Signal Detection ===
 def detect_signal(df):
     try:
         macd_cross_up = df['macd'].iloc[-2] < df['macd_signal'].iloc[-2] and df['macd'].iloc[-1] > df['macd_signal'].iloc[-1]
@@ -83,24 +82,17 @@ def detect_signal(df):
     except:
         return None
 
-# === Volume Strength ===
-def volume_strength(df):
-    v_now = df['volume'].iloc[-1]
-    v_avg = df['volume_ma'].iloc[-1]
-    if v_now > v_avg * 1.5:
-        return "จริง ✅"
-    elif v_now < v_avg * 0.5:
-        return "หลอก ❗"
-    else:
-        return "ปกติ 🔄"
+# === Volume Confirmation ===
+def confirm_volume(df_main, df_confirm):
+    vol_now_main = df_main['volume'].iloc[-1]
+    vol_ma_main = df_main['volume_ma'].iloc[-1]
 
-# === Confirm Signal by Volume ===
-def confirm_signal_by_volume(df_main, df_confirm):
-    vol_main = volume_strength(df_main)
-    vol_confirm = volume_strength(df_confirm)
-    return vol_main == "จริง ✅" and vol_confirm == "จริง ✅"
+    vol_now_conf = df_confirm['volume'].iloc[-1]
+    vol_ma_conf = df_confirm['volume_ma'].iloc[-1]
 
-# === Signal Status Explanation ===
+    return vol_now_main > vol_ma_main * 1.5 and vol_now_conf > vol_ma_conf * 1.5
+
+# === Status ===
 def get_status(df):
     macd_now = df['macd'].iloc[-1]
     macd_sig = df['macd_signal'].iloc[-1]
@@ -116,9 +108,23 @@ def get_status(df):
     else:
         return "ยังไม่ชัดเจน 🔄"
 
-# === Main Loop ===
-results = []
+# === Styling ===
+def color_signal(val):
+    if "LONG" in val:
+        return 'background-color: #c6f6d5'
+    elif "SHORT" in val:
+        return 'background-color: #fed7d7'
+    return ''
 
+def color_confirm(val):
+    if val == '✅':
+        return 'background-color: #9ae6b4'
+    elif val == '❌':
+        return 'background-color: #feb2b2'
+    return ''
+
+# === Run Analysis ===
+results = []
 with st.spinner("🔄 Fetching data & analyzing..."):
     for symbol in symbols:
         try:
@@ -126,29 +132,37 @@ with st.spinner("🔄 Fetching data & analyzing..."):
             df_confirm = analyze(get_data(symbol, timeframes['confirm'], limit))
 
             signal = detect_signal(df_main)
-            vol_strength = volume_strength(df_main)
+            confirmed_vol = confirm_volume(df_main, df_confirm)
             price = df_main['close'].iloc[-1]
             status = get_status(df_main)
 
-            is_confirmed = confirm_signal_by_volume(df_main, df_confirm) if signal else None
-
-            if is_confirmed:
-                send_telegram_alert(symbol, signal, price, vol_strength, status)
+            if signal and confirmed_vol:
+                send_telegram_message(f"\ud83d\udd39 *{symbol}* | {signal}\n\ud83d\udcc8 ราคา: {price:,.2f}\n\ud83d\udd22 สถานะ: {status}")
 
             results.append({
                 '🪙 Symbol': symbol,
                 '📊 Status': status,
                 '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
                 '💰 Price': f"{price:,.4f}",
-                '📉 Volume': vol_strength,
-                '✅ Confirmed (Vol)': '✅' if is_confirmed else ('❌' if is_confirmed == False else '—')
+                '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌'
             })
+
         except Exception as e:
             st.error(f"{symbol} - {str(e)}")
 
-# === Display Results ===
-if results:
-    df_result = pd.DataFrame(results)
-    st.dataframe(df_result, use_container_width=True)
-else:
+# === Filter Results ===
+df_result = pd.DataFrame(results)
+df_filtered = df_result.copy()
+
+if signal_filter != "ทั้งหมด":
+    df_filtered = df_filtered[df_filtered['📈 Signal'].str.contains(signal_filter)]
+if volume_filter:
+    df_filtered = df_filtered[df_filtered['✅ Confirmed (Vol)'] == '✅']
+
+styled_df = df_filtered.style.applymap(color_signal, subset=['📈 Signal'])\
+                               .applymap(color_confirm, subset=['✅ Confirmed (Vol)'])
+
+st.dataframe(styled_df, use_container_width=True, height=700)
+
+if df_filtered.empty:
     st.warning("🚫 No data to show.")
