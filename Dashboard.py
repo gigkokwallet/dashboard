@@ -169,4 +169,4 @@ with st.spinner("🔄 Fetching data & analyzing..."):
                 '💰 Price': f"{price:,.4f}",
                 '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
                 '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
-                '📊 Volume (24h)': f"{volume_24_
+                '📊 Volume (24h)': f"{volume_24h:,.2f}",  # Displaying 24h volume
