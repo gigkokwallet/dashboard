@@ -163,10 +163,12 @@ with st.spinner("🔄 Fetching data & analyzing..."):
 
             # Append data to results
             results.append({
-                '🪙 Symbol': symbol,
-                '📊 Status': status,
-                '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
-                '💰 Price': f"{price:,.4f}",
-                '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
-                '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
-                '📊 Volume (24h)': f"{volume_24h:,.2f}",  # Displaying 24h volume
+    '🪙 Symbol': symbol,
+    '📊 Status': status,
+    '📈 Signal': f"{'🟢' if signal == 'LONG' else ('🔴' if signal == 'SHORT' else '⚪')} {signal or '—'}",
+    '💰 Price': f"{price:,.4f}",
+    '✅ Confirmed (Vol)': '✅' if confirmed_vol else '❌',
+    '📉 24h Change (%)': f"{price_change_percent:.2f}%",  # Displaying 24h price change
+    '📊 Volume (24h)': f"{volume_24h:,.2f}"  # Displaying 24h volume
+})  # <-- ปิดเครื่องหมายปีกกาให้สมบูรณ์ตรงนี้
+
