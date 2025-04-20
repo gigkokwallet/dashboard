@@ -51,18 +51,11 @@ def analyze(symbol, timeframe):
     df = fetch_ohlcv(symbol, timeframe)
     df = calculate_stochrsi(df)
     latest = df.iloc[-1]
-    previous = df.iloc[-2]
     stoch = latest['StochRSI']
     status = classify_stochrsi_status(stoch)
-    
-    if latest['high'] > previous['high'] and latest['volume'] > previous['volume']:
-        break_type = "HIGH"
-    elif latest['low'] < previous['low'] and latest['volume'] > previous['volume']:
-        break_type = "LOW"
-    else:
-        return None  # ไม่เข้าเงื่อนไข breakout
-    
-    adv1, adv2 = generate_trade_advice(break_type, stoch)
+
+    # ไม่จำเป็นต้องรอ breakout
+    adv1, adv2 = generate_trade_advice("HIGH" if latest['high'] > latest['close'] else "LOW", stoch)
     
     return {
         "Symbol": symbol,
