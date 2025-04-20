@@ -75,14 +75,14 @@ def analyze(symbol, timeframe):
     }
 
 # Main dashboard
-st.title("🚀 Crypto Breakout Dashboard (15 นาที)")
+st.title("🚀 Crypto Breakout Dashboard")
 
 symbols = ['BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'SOL/USDT', 
            'DOGE/USDT', 'ADA/USDT', 'LINK/USDT', 'AVAX/USDT', 
            'SUI/USDT', 'LTC/USDT', 'DOT/USDT', 'TON/USDT', 'NEAR/USDT']
 
+# แสดงแค่ TF อย่างเดียว
 timeframe = st.selectbox("เลือกระยะเวลา", options=['15m', '1h', '4h'], index=0)
-show_raw = st.checkbox("แสดงทั้งหมด แม้ไม่เข้า Breakout", False)
 
 results = []
 with st.spinner("กำลังประมวลผล..."):
@@ -91,18 +91,6 @@ with st.spinner("กำลังประมวลผล..."):
             result = analyze(symbol, timeframe)
             if result:
                 results.append(result)
-            elif show_raw:
-                df = fetch_ohlcv(symbol, timeframe)
-                df = calculate_stochrsi(df)
-                latest = df.iloc[-1]
-                results.append({
-                    "Symbol": symbol,
-                    "ราคา": latest['close'],
-                    "Volume": latest['volume'],
-                    "StochRSI": round(latest['StochRSI'], 2),
-                    "สถานะ": classify_stochrsi_status(latest['StochRSI']),
-                    "คำแนะนำ": "-", "กลยุทธ์": "-"
-                })
         except Exception as e:
             st.error(f"❌ {symbol} : {e}")
 
