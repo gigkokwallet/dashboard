@@ -7,7 +7,7 @@ import datetime
 st.set_page_config(page_title="Breakout Dashboard", layout="wide")
 
 def fetch_ohlcv(symbol, timeframe):
-    exchange = ccxt.binance()
+    exchange = ccxt.mexc()
     ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=100)
     df = pd.DataFrame(ohlcv, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
