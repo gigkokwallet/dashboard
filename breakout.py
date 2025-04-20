@@ -56,9 +56,12 @@ def analyze(symbol, timeframe):
     # ไม่จำเป็นต้องรอ breakout
     adv1, adv2 = generate_trade_advice("HIGH" if latest['high'] > latest['close'] else "LOW", stoch)
     
+    # การจัดรูปแบบราคาพร้อมเครื่องหมายคั่นหลักพันและทศนิยม 4 ตำแหน่ง
+    formatted_price = "{:,.4f}".format(latest['close'])
+    
     return {
         "Symbol": symbol,
-        "ราคา": latest['close'],
+        "ราคา": formatted_price,  # ราคาในรูปแบบที่จัดการแล้ว
         "Volume": latest['volume'],
         "StochRSI": round(stoch, 2),
         "สถานะ": status,
