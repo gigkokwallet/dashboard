@@ -92,4 +92,4 @@ if results:
     # แสดงข้อมูลในตาราง
     st.dataframe(df_result, use_container_width=True)
 else:
-    st.warning("ไม่มีข้อมูลที่
+    st.warning("ไม่มีข้อมูลที่เข้าเงื่อนไข Breakout")
