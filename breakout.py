@@ -2,7 +2,6 @@ import ccxt
 import pandas as pd
 import streamlit as st
 import datetime
-import plotly.express as px
 
 st.set_page_config(page_title="Breakout Dashboard", layout="wide")
 
@@ -90,11 +89,7 @@ with st.spinner("กำลังประมวลผล..."):
 if results:
     df_result = pd.DataFrame(results)
     
-    # แสดงกราฟแท่ง
-    fig = px.bar(df_result, x='Symbol', y='ราคา', title="ราคาปัจจุบันของแต่ละเหรียญ")
-    st.plotly_chart(fig)
-    
     # แสดงข้อมูลในตาราง
     st.dataframe(df_result, use_container_width=True)
 else:
-    st.warning("ไม่มีข้อมูลที่เข้าเงื่อนไข Breakout")
+    st.warning("ไม่มีข้อมูลที่
